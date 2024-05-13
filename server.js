@@ -38,7 +38,7 @@ app.get("/search", handleSearch);
 //CRUD DB
 app.post("/addMovie", handleAddMovie);
 app.get("/getMovies", handleGetMovies);
-app.put("/UPDATE/:id", handleUpdateMovie);//http://localhost:UPDATE/3
+app.put("/UPDATE/:id", handleUpdateMovie); //http://localhost:UPDATE/3
 app.delete("/DELETE/:id", handleDeleteMovie);
 
 app.use(errorHandler);
@@ -47,6 +47,11 @@ app.use(errorHandler);
 req.query --> hhttp://localhost:gitMovie?name = 123 // http method: GET
 req.params --> hhttp://localhost:gitMovie/7 // http method: PUT DELETE
 req.body --> hhttp://localhost:gitMovie {} // http method: POST 
+
+get ---> sql = select * from 
+post ---> sql = insert into
+put ---> sql = update movies set
+delete ---> sql = delete from mo
 */
 
 //functions
@@ -87,7 +92,7 @@ function handleTrending(req, res) {
 //hhttp://localhost:gitMovie?
 function handleSearch(req, res) {
   //from 3rd party api
-  let query = req.query.name;   //http://localhost:search?name=the
+  let query = req.query.name; //http://localhost:search?name=the
   const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-US&query=${query}&page=2`;
 
   axios
@@ -117,9 +122,9 @@ function handleAddMovie(req, res) {
 
   client
     .query(sql, values)
-      .then((response) => {
-          console.log(response);
-        return res.status(201).json(response.rows[0]);
+    .then((response) => {
+      console.log(response);
+      return res.status(201).json(response.rows[0]);
     })
     .catch((err) => {
       errorHandler(err, req, res);
@@ -127,47 +132,46 @@ function handleAddMovie(req, res) {
 }
 
 function handleGetMovies(req, res) {
-    const sql = `SELECT * FROM movies;`;
-    client
-     .query(sql)
-     .then((response) => {
-        res.json(response.rows);
-      })
-     .catch((err) => {
-        errorHandler(err, req, res);
-      });
+  const sql = `SELECT * FROM movies;`;
+  client
+    .query(sql)
+    .then((response) => {
+      res.json(response.rows);
+    })
+    .catch((err) => {
+      errorHandler(err, req, res);
+    });
 }
 
 function handleUpdateMovie(req, res) {
-    const id = req.params.id;//  /7
-    
-    const { title, release_date, poster_path, overview, comment } = req.body;
-    
-    const sql = `UPDATE movies SET title = $1, release_date = $2, poster_path = $3, overview = $4, comment = $5 WHERE id = ${id} RETURNING *;`;
-    const values = [title, release_date, poster_path, overview, comment];
-    client
-      .query(sql, values)
-      .then((response) => {
-        console.log(response);
-        return res.status(200).json(response.rows[0]);
-      })
-      .catch((err) => {
-        errorHandler(err, req, res);
-      });
+  const id = req.params.id; //  /7
 
+  const { title, release_date, poster_path, overview, comment } = req.body;
+
+  const sql = `UPDATE movies SET title = $1, release_date = $2, poster_path = $3, overview = $4, comment = $5 WHERE id = ${id} RETURNING *;`;
+  const values = [title, release_date, poster_path, overview, comment];
+  client
+    .query(sql, values)
+    .then((response) => {
+      console.log(response);
+      return res.status(200).json(response.rows[0]);
+    })
+    .catch((err) => {
+      errorHandler(err, req, res);
+    });
 }
 
 function handleDeleteMovie(req, res) {
-    const id = req.params.id;//  /5
-    const sql = `DELETE FROM movies WHERE id = ${id} RETURNING *;`;
-    client
-     .query(sql)
-     .then((response) => {
-        res.json(response.rows[0]);
-      })
-     .catch((err) => {
-        errorHandler(err, req, res);
-      });
+  const id = req.params.id; //  /5
+  const sql = `DELETE FROM movies WHERE id = ${id} RETURNING *;`;
+  client
+    .query(sql)
+    .then((response) => {
+      res.json(response.rows[0]);
+    })
+    .catch((err) => {
+      errorHandler(err, req, res);
+    });
 }
 function errorHandler(err, req, res) {
   const message = {
